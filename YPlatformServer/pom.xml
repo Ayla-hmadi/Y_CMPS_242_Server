@@ -9,11 +9,28 @@
   <url>http://maven.apache.org</url>
 
   <properties>
+    <maven.compiler.source>19</maven.compiler.source>
+    <maven.compiler.target>19</maven.compiler.target>
     <sqlite.version>3.43.2.2</sqlite.version>
     <slf4j.version>2.0.9</slf4j.version>
     <logback.version>1.4.11</logback.version>
     <junit.version>4.13.2</junit.version>
   </properties>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.11.0</version>
+        <configuration>
+          <release>${maven.compiler.source}</release>
+        </configuration>
+      </plugin>
+      <!-- other plugins can be listed here -->
+    </plugins>
+  </build>
+
 
   <dependencies>
     <!-- SQLite JDBC Driver -->
