@@ -1,7 +1,7 @@
 package com.yplatform.database.dao.implementations;
 
-import com.yplatform.database.SQLiteConnectionManager;
 import com.yplatform.database.dao.interfaces.ReactionDAO;
+import com.yplatform.database.SQLiteConnectionManager;
 import com.yplatform.models.Reaction;
 
 import java.sql.*;

@@ -1,7 +1,7 @@
 package com.yplatform.database.dao.implementations;
 
-import com.yplatform.database.SQLiteConnectionManager;
 import com.yplatform.database.dao.interfaces.UserDAO;
+import com.yplatform.database.SQLiteConnectionManager;
 import com.yplatform.models.User;
 import org.mindrot.jbcrypt.BCrypt;
 

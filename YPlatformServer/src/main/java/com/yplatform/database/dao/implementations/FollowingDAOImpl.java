@@ -1,7 +1,7 @@
 package com.yplatform.database.dao.implementations;
 
-import com.yplatform.database.SQLiteConnectionManager;
 import com.yplatform.database.dao.interfaces.FollowingDAO;
+import com.yplatform.database.SQLiteConnectionManager;
 import com.yplatform.models.Following;
 
 import java.sql.*;
