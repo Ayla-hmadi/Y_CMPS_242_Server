@@ -1,7 +1,11 @@
 package com.yplatform.network;
 
+import com.yplatform.network.clientHandlers.EchoClientHandler;
+import com.yplatform.network.interceptors.IMessageInterceptor;
+
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
 import java.util.concurrent.*;
 
 public class TCPServer {
@@ -14,6 +18,15 @@ public class TCPServer {
 
     private final ExecutorService executorService = Executors.newCachedThreadPool();
 
+    ArrayList<IMessageInterceptor> messageInterceptors = new ArrayList<>();
+
+    public void addInterceptor(IMessageInterceptor messageInterceptor) {
+        if (messageInterceptor == null) {
+            throw new IllegalArgumentException("Interceptor is missing");
+        }
+        messageInterceptors.add(messageInterceptor);
+    }
+
     public void start() {
         try (
                 // Creating listener
@@ -24,10 +37,14 @@ public class TCPServer {
             while (true) {
                 // Accept incoming connections
                 Socket clientSocket = serverSocket.accept();
-                System.out.println("Client connected: " + clientSocket.getInetAddress().getHostAddress());
+                System.out.println(
+                        "Client connected: " +
+                                clientSocket.getInetAddress().getHostAddress() +
+                                " Keep: " +
+                                clientSocket.getKeepAlive());
 
                 // Submit the client handling task to the executor service
-                executorService.submit(new ClientHandler(clientSocket));
+                executorService.submit(new EchoClientHandler(clientSocket));
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -36,34 +53,5 @@ public class TCPServer {
 
     public int getPortNumber() {
         return portNumber;
-    }
-
-    static class ClientHandler implements Runnable {
-        private final Socket clientSocket;
-
-        public ClientHandler(Socket clientSocket) {
-            this.clientSocket = clientSocket;
-        }
-
-        @Override
-        public void run() {
-            try (
-                    // Create input stream to read data from the client
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))
-            ) {
-                String inputLine;
-                while ((inputLine = reader.readLine()) != null) {
-                    System.out.println("Received from " + clientSocket.getInetAddress().getHostAddress() + ": " + inputLine);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                try {
-                    clientSocket.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
     }
 }
