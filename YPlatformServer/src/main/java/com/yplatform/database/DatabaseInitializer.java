@@ -1,12 +1,31 @@
 package com.yplatform.database;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.Statement;
 import java.sql.SQLException;
 
 public class DatabaseInitializer {
 
-    public static void initializeDatabase() {
+    public static void initializeDatabaseIfNeeded() {
+        if (!isDatabaseInitialized()) {
+            initializeDatabase();
+        }
+    }
+
+    private static boolean isDatabaseInitialized() {
+        try (Connection connection = SQLiteConnectionManager.getConnection();
+             Statement statement = connection.createStatement()) {
+
+            ResultSet rs = statement.executeQuery("SELECT name FROM sqlite_master WHERE type='table' AND name='User';");
+            return rs.next();
+        } catch (SQLException e) {
+            throw new RuntimeException("Error checking database initialization", e);
+        }
+    }
+
+
+    private static void initializeDatabase() {
         Connection connection = null;
         Statement statement = null;
 

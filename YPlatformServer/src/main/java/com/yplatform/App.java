@@ -1,9 +1,12 @@
 package com.yplatform;
 
+import com.yplatform.database.DatabaseInitializer;
 import com.yplatform.network.TCPServer;
 
 public class App {
     public static void main(String[] args) {
+        DatabaseInitializer.initializeDatabaseIfNeeded();
+
         if (args.length == 0) {
             System.out.println("TCP Server failed to start.. Invalid port! ");
             return;
