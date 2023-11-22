@@ -21,9 +21,8 @@ public class UserService {
 
     public boolean addUser(User user) {
         try {
-            // Logic will be added here to make sure that the User is not already registerd
-            userDAO.addUser(user);
-            return true;
+            // Logic will be added here to make sure that the User is not already registered
+            return userDAO.addUser(user);
         } catch (Exception e) {
             LoggingUtil.logError(logger, "Failed to perform operation in addUser()", e);
             return false;

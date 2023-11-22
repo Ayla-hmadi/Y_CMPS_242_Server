@@ -3,7 +3,7 @@ package com.yplatform.commands;
 import com.yplatform.models.User;
 
 public class RegisterCommand implements ICommand<User> {
-    private String username, name, email, password;
+    private String username, name, email, password, address;
 
     public String getUsername() {
         return username;
@@ -35,5 +35,13 @@ public class RegisterCommand implements ICommand<User> {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 }

@@ -1,11 +1,17 @@
 package com.yplatform;
 
+import com.github.javafaker.Faker;
 import com.google.gson.Gson;
-import com.yplatform.shared.dtos.LoginDto;
+import com.yplatform.commands.LoginCommand;
+import com.yplatform.commands.RegisterCommand;
+import com.yplatform.network.Keywords;
 import org.junit.jupiter.api.*;
 
-import java.io.*;
-import java.net.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
 
 /**
  * Unit test for simple App.
@@ -54,17 +60,47 @@ public class ClientTest {
     }
 
     @Test
+    public void testRegister() throws IOException {
+        registerNewUser();
+    }
+
+    @Test
+    public void testPostsLogin() throws IOException {
+        registerNewUser();
+    }
+
+    public String registerNewUser() throws IOException {
+        String serverResponse;
+        while ((serverResponse = readServer(reader)) != null) {
+            if (serverResponse.equals("OVER")) {
+                break;
+            }
+        }
+
+        printWriter.println("register");
+        // send login dto
+        Faker faker = new Faker();
+
+        RegisterCommand dto = new RegisterCommand();
+        dto.setName(faker.name().fullName());
+        dto.setEmail(faker.internet().emailAddress());
+        dto.setUsername(faker.name().username());
+        dto.setPassword(faker.internet().password());
+        dto.setAddress(faker.address().fullAddress());
+        var gson = new Gson();
+        var json = gson.toJson(dto);
+        System.out.println(json);
+        printWriter.println(json);
+
+        serverResponse = readServer(reader);
+        Assertions.assertEquals(Keywords.CommandSuccess, serverResponse);
+        return dto.getUsername();
+    }
+
+
+    @Test
     public void testValidLogin() throws IOException {
-
-        // Create a BufferedReader to read input from the user
-
         System.out.println("Connected to the server.");
-
-        // Read user input and send it to the server
-        String userInputLine = "Hello from client!!!";
-        printWriter.println(userInputLine);
-        printWriter.println("Send me some stuff!");
-
         // Read and print the server's response
         String serverResponse = reader.readLine();
         System.out.println("Server response: " + serverResponse);
@@ -78,17 +114,13 @@ public class ClientTest {
         // login
         printWriter.println("login");
         // send login dto
-        var loginDto = new LoginDto("oz", "oz");
+        var loginDto = new LoginCommand("oz", "oz");
         var gson = new Gson();
         var json = gson.toJson(loginDto);
         printWriter.println(json);
 
-        while ((serverResponse = readServer(reader)) != null) {
-            if (serverResponse.equals("OVER")) {
-                break;
-            }
-        }
-        Assertions.assertTrue(true);
+        serverResponse = readServer(reader);
+        Assertions.assertEquals(Keywords.CommandSuccess, serverResponse);
     }
 
     private static String readServer(BufferedReader reader) throws IOException {

@@ -19,7 +19,7 @@ public class UserDAOImpl implements UserDAO {
     }
 
     @Override
-    public void addUser(User user) {
+    public boolean addUser(User user) {
         String sql = "INSERT INTO User (username, name, email, password) VALUES (?, ?, ?, ?)";
 
         try (Connection connection = SQLiteConnectionManager.getConnection();
@@ -31,8 +31,10 @@ public class UserDAOImpl implements UserDAO {
             pstmt.setString(4, hashPassword(user.getPassword()));
 
             pstmt.executeUpdate();
+            return true;
         } catch (SQLException e) {
             System.out.println("Error" + e.getMessage());
+            return false;
         }
     }
 

@@ -6,8 +6,8 @@ import com.yplatform.commands.ICommandHandler;
 import com.yplatform.commands.RegisterCommand;
 import com.yplatform.models.User;
 import com.yplatform.network.ExitException;
+import com.yplatform.network.Keywords;
 import com.yplatform.services.UserService;
-import com.yplatform.shared.dtos.LoginDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +31,7 @@ public class RegisterCommandHandler extends BaseCommandHandler implements IComma
             // read loginDto
             var command = readJsonObject(RegisterCommand.class);
             var userService = injector.getInstance(UserService.class);
+
             var newUser = new User(
                     command.getUsername(),
                     command.getName(),
@@ -38,6 +39,8 @@ public class RegisterCommandHandler extends BaseCommandHandler implements IComma
                     command.getPassword());
             var userResult = userService.addUser(newUser);
             if (userResult) {
+                logger.info("New user registered " + newUser.getUsername());
+                writer.println(Keywords.CommandSuccess);
                 return newUser;
             } else {
                 writer.println("Failed to create a new user. Verify and try again!");
