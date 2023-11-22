@@ -2,86 +2,93 @@ package com.yplatform;
 
 import com.google.gson.Gson;
 import com.yplatform.shared.dtos.LoginDto;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.jupiter.api.*;
 
 import java.io.*;
 import java.net.*;
-import java.util.EventListener;
-
-import org.junit.runner.RunWith;
-
-import java.util.Scanner;
 
 /**
  * Unit test for simple App.
  */
-public class ClientTest
-        extends TestCase {
-    /**
-     * Create the test case
-     *
-     * @param testName name of the test case
-     */
-    public ClientTest(String testName) {
-        super(testName);
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+public class ClientTest {
+    private PrintWriter printWriter;
+    private BufferedReader reader;
+    private Socket socket;
+
+    @BeforeAll
+    public static void setUpClass() {
+        // Code to be executed once before any test in the class
+        System.out.println("Setting up the class...");
     }
 
-    /**
-     * @return the suite of tests being tested
-     */
-    public static Test suite() {
-        return new TestSuite(ClientTest.class);
-    }
 
-    public void testLogin() throws IOException {
+    @BeforeEach
+    public void setUp() throws IOException {
+        System.out.println("Setting up for the test...");
+
         final String serverHost = "localhost"; // Replace with your server's IP or hostname
         final int serverPort = 43211; // Replace with your server's port number
 
+        // Create a socket to connect to the server
+        socket = new Socket(serverHost, serverPort);
+        // Create input and output streams for communication with the server
+        printWriter = new PrintWriter(socket.getOutputStream(), true);
+        reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+    }
 
-        try (
-                // Create a socket to connect to the server
-                Socket socket = new Socket(serverHost, serverPort);
-                // Create input and output streams for communication with the server
-                PrintWriter printWriter = new PrintWriter(socket.getOutputStream(), true);
-                BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()))
-        ) {
-            // Create a BufferedReader to read input from the user
+    @AfterAll
+    public static void tearDownClass() {
+        // Code to be executed once after all tests in the class
+        System.out.println("Tearing down the class...");
+    }
 
-            System.out.println("Connected to the server.");
+    @AfterEach
+    public void tearDown() throws IOException {
+        System.out.println("Tearing down after the test...");
 
-            // Read user input and send it to the server
-            String userInputLine = "Hello from client!!!";
-            printWriter.println(userInputLine);
-            printWriter.println("Send me some stuff!");
+        // Close the socket and associated streams
+        printWriter.close();
+        reader.close();
+        socket.close();
+    }
 
-            // Read and print the server's response
-            String serverResponse = reader.readLine();
-            System.out.println("Server response: " + serverResponse);
+    @Test
+    public void testValidLogin() throws IOException {
 
-            while ((serverResponse = readServer(reader)) != null) {
-                if (serverResponse.equals("OVER")) {
-                    break;
-                }
-            }
+        // Create a BufferedReader to read input from the user
 
-            // login
-            printWriter.println("login");
-            // send login dto
-            var loginDto = new LoginDto("oz", "oz");
-            var gson = new Gson();
-            var json = gson.toJson(loginDto);
-            printWriter.println(json);
+        System.out.println("Connected to the server.");
 
-            while ((serverResponse = readServer(reader)) != null) {
-                if (serverResponse.equals("OVER")) {
-                    break;
-                }
+        // Read user input and send it to the server
+        String userInputLine = "Hello from client!!!";
+        printWriter.println(userInputLine);
+        printWriter.println("Send me some stuff!");
+
+        // Read and print the server's response
+        String serverResponse = reader.readLine();
+        System.out.println("Server response: " + serverResponse);
+
+        while ((serverResponse = readServer(reader)) != null) {
+            if (serverResponse.equals("OVER")) {
+                break;
             }
         }
 
-        assertTrue(true);
+        // login
+        printWriter.println("login");
+        // send login dto
+        var loginDto = new LoginDto("oz", "oz");
+        var gson = new Gson();
+        var json = gson.toJson(loginDto);
+        printWriter.println(json);
+
+        while ((serverResponse = readServer(reader)) != null) {
+            if (serverResponse.equals("OVER")) {
+                break;
+            }
+        }
+        Assertions.assertTrue(true);
     }
 
     private static String readServer(BufferedReader reader) throws IOException {

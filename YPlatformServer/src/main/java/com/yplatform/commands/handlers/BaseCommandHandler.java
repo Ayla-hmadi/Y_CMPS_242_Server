@@ -25,13 +25,13 @@ public abstract class BaseCommandHandler {
     }
 
     protected <T> T readJsonObject(Class<T> classOfT) throws IOException, ExitException {
-        Gson gson = new Gson();
         while (true) {
             var inputLine = reader.readLine();
             if (inputLine.equals("cancel") || inputLine.equals("close")) {
                 throw new ExitException();
             }
             try {
+                Gson gson = new Gson();
                 var json = gson.fromJson(inputLine, classOfT);
                 logger.info("Received json object");
                 return json;

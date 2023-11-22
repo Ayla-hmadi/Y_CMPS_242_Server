@@ -64,26 +64,10 @@ public class DefaultClientHandler implements Runnable {
                         // expected login model
                         var handler = injector.getInstance(LoginCommandHandler.class);
                         currentUser = handler.Handle();
-                        // read loginDto
-//                        var login = readJsonObject(LoginDto.class);
-//                        var userService = injector.getInstance(UserService.class);
-//
-//                        var user = userService.getUser(login.getUsername());
-//                        if (user.isEmpty()) {
-//                            writer.println("Invalid username!");
-//                        } else {
-//                            if (!user.get().getPassword().equals(login.getPassword())) {
-//                                writer.println("Invalid password");
-//                                // TODO: terminate or retry?
-//
-//                            } else {
-//                                currentUser = user.get();
-//                                // login success
-//                            }
-//                        }
                     } else if ("register".equals(inputLine)) {
                         // register
-                        break;
+                        var handler = injector.getInstance(LoginCommandHandler.class);
+                        currentUser = handler.Handle();
                     } else {
                         writer.println("login or register");
                     }

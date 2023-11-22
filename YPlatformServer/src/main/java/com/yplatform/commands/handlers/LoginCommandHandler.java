@@ -5,6 +5,7 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.yplatform.commands.ICommandHandler;
 import com.yplatform.commands.LoginCommand;
+import com.yplatform.commands.RegisterCommand;
 import com.yplatform.models.User;
 import com.yplatform.network.ExitException;
 import com.yplatform.network.clientHandlers.DefaultClientHandler;
@@ -31,7 +32,7 @@ public class LoginCommandHandler extends BaseCommandHandler implements ICommandH
 //        User loginUser = null;
         while (true) {
             // read loginDto
-            var login = readJsonObject(LoginDto.class);
+            var login = readJsonObject(LoginCommand.class);
             var userService = injector.getInstance(UserService.class);
 
             var userResult = userService.getUser(login.getUsername());
@@ -48,3 +49,5 @@ public class LoginCommandHandler extends BaseCommandHandler implements ICommandH
         }
     }
 }
+
+

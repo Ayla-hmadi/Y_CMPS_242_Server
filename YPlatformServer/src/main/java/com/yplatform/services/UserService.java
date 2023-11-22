@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Optional;
 
 public class UserService {
-
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
     private final UserDAO userDAO;
 
