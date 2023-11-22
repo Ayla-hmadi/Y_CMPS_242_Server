@@ -41,6 +41,9 @@ public class DatabaseInitializer {
                     "password TEXT NOT NULL" +
                     ");");
 
+            statement.execute("INSERT INTO `User` (username, name, email, password) " +
+                    "VALUES ('oz', 'oz', 'oz', 'oz')");
+
             // Post Table
             statement.execute("CREATE TABLE IF NOT EXISTS Post (" +
                     "id INTEGER PRIMARY KEY AUTOINCREMENT," +

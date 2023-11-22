@@ -1,7 +1,9 @@
 package com.yplatform.commands;
 
-public class LoginCommand implements ICommand {
+import com.yplatform.models.User;
 
+public class LoginCommand implements ICommand<User> {
+    private String username, password;
 
     public String getUsername() {
         return username;
@@ -9,13 +11,6 @@ public class LoginCommand implements ICommand {
 
     public void setUsername(String username) {
         this.username = username;
-    }
-
-    private String username, password;
-
-    @Override
-    public void Execute() {
-
     }
 
     public String getPassword() {

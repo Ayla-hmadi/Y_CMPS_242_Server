@@ -1,6 +1,7 @@
 package com.yplatform.network.clientHandlers;
 
 import com.google.gson.JsonSyntaxException;
+import com.yplatform.commands.handlers.LoginCommandHandler;
 import com.yplatform.models.*;
 import com.yplatform.network.ExitException;
 import com.yplatform.shared.dtos.*;
@@ -10,6 +11,7 @@ import com.yplatform.services.UserService;
 import com.google.inject.Injector;
 import com.google.inject.Guice;
 import com.google.gson.Gson;
+import com.yplatform.utils.ClientDiModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +53,7 @@ public class DefaultClientHandler implements Runnable {
 
             String inputLine;
 
-            Injector injector = Guice.createInjector(new AppDiModule());
+            Injector injector = Guice.createInjector(new ClientDiModule(writer, reader));
 
             while ((inputLine = reader.readLine()) != null) {
                 logger.info("Client: " + clientSocket.getPort() + " - Sent: " + inputLine);
@@ -60,27 +62,25 @@ public class DefaultClientHandler implements Runnable {
                 if (currentUser == null) {
                     if ("login".equals(inputLine)) {
                         // expected login model
-
+                        var handler = injector.getInstance(LoginCommandHandler.class);
+                        currentUser = handler.Handle();
                         // read loginDto
-                        var login = readJsonObject(LoginDto.class);
-                        var userService = injector.getInstance(UserService.class);
-
-                        var user = userService.getUser(login.getUsername());
-                        if (user.isEmpty()) {
-                            writer.println("Invalid username!");
-                            clientSocket.close();
-                        } else {
-                            if (!user.get().getPassword().equals(login.getPassword())) {
-                                writer.println("Invalid password");
-                                // TODO: terminate or retry?
-
-                            } else {
-                                currentUser = user.get();
-                            }
-                            // login success
-                        }
-                        break;
-
+//                        var login = readJsonObject(LoginDto.class);
+//                        var userService = injector.getInstance(UserService.class);
+//
+//                        var user = userService.getUser(login.getUsername());
+//                        if (user.isEmpty()) {
+//                            writer.println("Invalid username!");
+//                        } else {
+//                            if (!user.get().getPassword().equals(login.getPassword())) {
+//                                writer.println("Invalid password");
+//                                // TODO: terminate or retry?
+//
+//                            } else {
+//                                currentUser = user.get();
+//                                // login success
+//                            }
+//                        }
                     } else if ("register".equals(inputLine)) {
                         // register
                         break;
@@ -110,21 +110,5 @@ public class DefaultClientHandler implements Runnable {
 
     }
 
-    private <T> T readJsonObject(Class<T> classOfT) throws IOException, ExitException {
 
-        while (true) {
-            var inputLine = reader.readLine();
-            if (inputLine.equals("cancel") || inputLine.equals("close")) {
-                throw new ExitException();
-            }
-            try {
-                var json = gson.fromJson(inputLine, classOfT);
-                logger.info("Received json object");
-                return json;
-            } catch (JsonSyntaxException exception) {
-                logger.error("Invalid json object", exception);
-                writer.println("Invalid json input. Please try again");
-            }
-        }
-    }
 }

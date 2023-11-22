@@ -69,7 +69,7 @@ public class ClientTest
             // login
             printWriter.println("login");
             // send login dto
-            var loginDto = new LoginDto("user", "pass");
+            var loginDto = new LoginDto("oz", "oz");
             var gson = new Gson();
             var json = gson.toJson(loginDto);
             printWriter.println(json);

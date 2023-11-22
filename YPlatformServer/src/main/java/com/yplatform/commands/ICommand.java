@@ -1,5 +1,8 @@
 package com.yplatform.commands;
 
-public interface ICommand {
-    void Execute();
+import java.io.BufferedReader;
+import java.io.PrintWriter;
+
+public interface ICommand<TResult> {
 }
+
