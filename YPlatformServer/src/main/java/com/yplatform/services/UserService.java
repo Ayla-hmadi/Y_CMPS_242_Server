@@ -1,5 +1,6 @@
 package com.yplatform.services;
 
+import com.google.inject.Inject;
 import com.yplatform.database.dao.interfaces.UserDAO;
 import com.yplatform.models.User;
 import com.yplatform.utils.LoggingUtil;
@@ -14,6 +15,7 @@ public class UserService {
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
     private final UserDAO userDAO;
 
+    @Inject
     public UserService(UserDAO userDAO) {
         this.userDAO = userDAO;
     }

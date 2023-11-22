@@ -1,5 +1,6 @@
 package com.yplatform.database.dao.implementations;
 
+import com.google.inject.Inject;
 import com.yplatform.database.dao.interfaces.UserDAO;
 import com.yplatform.database.SQLiteConnectionManager;
 import com.yplatform.models.User;
@@ -10,7 +11,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+
 public class UserDAOImpl implements UserDAO {
+
+    @Inject
+    public UserDAOImpl() {
+    }
 
     @Override
     public void addUser(User user) {

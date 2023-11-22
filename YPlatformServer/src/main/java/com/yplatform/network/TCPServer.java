@@ -1,14 +1,21 @@
 package com.yplatform.network;
 
-import com.yplatform.network.clientHandlers.EchoClientHandler;
+import com.yplatform.network.clientHandlers.DefaultClientHandler;
 import com.yplatform.network.interceptors.IMessageInterceptor;
+import com.yplatform.utils.LoggingUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.net.*;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.ArrayList;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class TCPServer {
+    private static final Logger logger = LoggerFactory.getLogger(TCPServer.class);
+
     int portNumber;
 
     public TCPServer(int portNumber) {
@@ -17,15 +24,6 @@ public class TCPServer {
 
 
     private final ExecutorService executorService = Executors.newCachedThreadPool();
-
-    ArrayList<IMessageInterceptor> messageInterceptors = new ArrayList<>();
-
-    public void addInterceptor(IMessageInterceptor messageInterceptor) {
-        if (messageInterceptor == null) {
-            throw new IllegalArgumentException("Interceptor is missing");
-        }
-        messageInterceptors.add(messageInterceptor);
-    }
 
     public void start() {
         try (
@@ -37,14 +35,14 @@ public class TCPServer {
             while (true) {
                 // Accept incoming connections
                 Socket clientSocket = serverSocket.accept();
-                System.out.println(
+                LoggingUtil.logInfo(logger,
                         "Client connected: " +
                                 clientSocket.getInetAddress().getHostAddress() +
                                 " Keep: " +
                                 clientSocket.getKeepAlive());
 
                 // Submit the client handling task to the executor service
-                executorService.submit(new EchoClientHandler(clientSocket));
+                executorService.submit(new DefaultClientHandler(clientSocket));
             }
         } catch (IOException e) {
             e.printStackTrace();
