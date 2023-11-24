@@ -26,9 +26,7 @@ public class LoginCommandHandler extends BaseCommandHandler implements ICommandH
 
     @Override
     public User Handle() throws IOException, ExitException {
-//        User loginUser = null;
         while (true) {
-            // read loginDto
             var login = readJsonObject(LoginCommand.class);
             var userService = injector.getInstance(UserService.class);
 
@@ -36,12 +34,13 @@ public class LoginCommandHandler extends BaseCommandHandler implements ICommandH
             if (userResult.isEmpty()) {
                 writer.println("Invalid username!");
             } else {
-                if (!userResult.get().getPassword().equals(login.getPassword())) {
+                User user = userResult.get();
+                if (!user.getPassword().equals(login.getPassword())) {
                     writer.println("Invalid password");
                 } else {
                     writer.println(Keywords.CommandSuccess);
-                    return userResult.get();
-                    // login success
+                    user.setPassword(null);
+                    return user;
                 }
             }
         }
