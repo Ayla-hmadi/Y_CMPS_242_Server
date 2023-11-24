@@ -11,4 +11,8 @@ public interface PostDAO {
     void updatePost(Post post);
     void deletePost(int id);
     List<Post> getPostsByUser(String username);
+
+    List<Post> getPostsByUsers(List<String> usernames);
+
+    List<Post> getRandomPostsFromUsers(List<String> usernames, int limit);
 }

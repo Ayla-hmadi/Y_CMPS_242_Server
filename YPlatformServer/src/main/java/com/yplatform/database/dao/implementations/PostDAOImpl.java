@@ -6,6 +6,7 @@ import com.yplatform.models.Post;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class PostDAOImpl implements PostDAO {
@@ -105,6 +106,43 @@ public class PostDAOImpl implements PostDAO {
     }
 
     @Override
+    public List<Post> getPostsByUsers(List<String> usernames) {
+        List<Post> posts = new ArrayList<>();
+
+        if (usernames.isEmpty()) {
+            return posts;
+        }
+
+        String placeholders = String.join(",", Collections.nCopies(usernames.size(), "?"));
+        String sql = "SELECT * FROM Post WHERE username IN (" + placeholders + ")";
+
+        try (Connection connection = SQLiteConnectionManager.getConnection();
+             PreparedStatement pstmt = connection.prepareStatement(sql)) {
+
+            for (int i = 0; i < usernames.size(); i++) {
+                pstmt.setString(i + 1, usernames.get(i));
+            }
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    Post post = new Post(
+                            rs.getInt("id"),
+                            rs.getString("content"),
+                            rs.getTimestamp("timestamp"),
+                            rs.getString("username")
+                    );
+                    posts.add(post);
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error" + e.getMessage());
+        }
+        return posts;
+    }
+
+
+
+    @Override
     public List<Post> getPostsByUser(String username) {
         List<Post> posts = new ArrayList<>();
         String sql = "SELECT * FROM Post WHERE username = ?";
@@ -124,6 +162,70 @@ public class PostDAOImpl implements PostDAO {
             }
         } catch (SQLException e) {
             System.out.println("Error" + e.getMessage());
+        }
+        return posts;
+    }
+
+
+    @Override
+    public List<Post> getRandomPostsFromUsers(List<String> usernames, int limit) {
+        List<Post> posts = new ArrayList<>();
+
+        if (usernames.isEmpty()) {
+            return getRandomPosts(limit);
+        }
+
+        String placeholders = String.join(",", Collections.nCopies(usernames.size(), "?"));
+        String sql = "SELECT * FROM Post WHERE username NOT IN (" + placeholders + ") ORDER BY RANDOM() LIMIT ?";
+
+        try (Connection connection = SQLiteConnectionManager.getConnection();
+             PreparedStatement pstmt = connection.prepareStatement(sql)) {
+
+            for (int i = 0; i < usernames.size(); i++) {
+                pstmt.setString(i + 1, usernames.get(i));
+            }
+
+            pstmt.setInt(usernames.size() + 1, limit);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    Post post = new Post(
+                            rs.getInt("id"),
+                            rs.getString("content"),
+                            rs.getTimestamp("timestamp"),
+                            rs.getString("username")
+                    );
+                    posts.add(post);
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("SQL Error: " + e.getMessage());
+        }
+        return posts;
+    }
+
+    private List<Post> getRandomPosts(int limit) {
+        List<Post> posts = new ArrayList<>();
+        String sql = "SELECT * FROM Post ORDER BY RANDOM() LIMIT ?";
+
+        try (Connection connection = SQLiteConnectionManager.getConnection();
+             PreparedStatement pstmt = connection.prepareStatement(sql)) {
+
+            pstmt.setInt(1, limit);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    Post post = new Post(
+                            rs.getInt("id"),
+                            rs.getString("content"),
+                            rs.getTimestamp("timestamp"),
+                            rs.getString("username")
+                    );
+                    posts.add(post);
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("SQL Error: " + e.getMessage());
         }
         return posts;
     }

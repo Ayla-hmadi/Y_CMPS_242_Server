@@ -1,6 +1,7 @@
 package com.yplatform.services;
 
 import com.google.inject.Inject;
+import com.yplatform.database.dao.interfaces.FollowingDAO;
 import com.yplatform.database.dao.interfaces.PostDAO;
 import com.yplatform.models.Following;
 import com.yplatform.models.Post;
@@ -17,11 +18,13 @@ public class PostService {
     private static final Logger logger = LoggerFactory.getLogger(PostService.class);
     private final PostDAO postDAO;
     private final FollowingService followingService;
+    private final FollowingDAO followingDAO;
 
     @Inject
-    public PostService(PostDAO postDAO, FollowingService followingService) {
+    public PostService(PostDAO postDAO, FollowingService followingService,FollowingDAO followingDAO) {
         this.postDAO = postDAO;
-        this.followingService = followingService; // Initialize in constructor
+        this.followingService = followingService;
+        this.followingDAO = followingDAO;
     }
 
     public boolean addPost(Post post) {
@@ -88,11 +91,23 @@ public class PostService {
                     .map(Following::getFollowingUsername)
                     .collect(Collectors.toList());
 
-            return postDAO.getAllPosts().stream()
-                    .filter(post -> followedUsernames.contains(post.getUsername()))
-                    .collect(Collectors.toList());
+            return postDAO.getPostsByUsers(followedUsernames);
         } catch (Exception e) {
             LoggingUtil.logError(logger, "Failed to perform operation in getPostsByFollowedUsers()", e);
+            return List.of();
+        }
+    }
+
+    public List<Post> getRandomPostsFromNonFollowedUsers(String username, int limit) {
+        try {
+            List<String> followedUsernames = followingDAO.getFollowing(username)
+                    .stream()
+                    .map(Following::getFollowingUsername)
+                    .collect(Collectors.toList());
+
+            return postDAO.getRandomPostsFromUsers(followedUsernames, limit);
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
             return List.of();
         }
     }
