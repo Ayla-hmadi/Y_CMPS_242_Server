@@ -3,6 +3,7 @@ package com.yplatform.database.dao.implementations;
 import com.yplatform.database.dao.interfaces.ReactionDAO;
 import com.yplatform.database.SQLiteConnectionManager;
 import com.yplatform.models.Reaction;
+import com.yplatform.models.enums.ReactionType;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -19,7 +20,8 @@ public class ReactionDAOImpl implements ReactionDAO {
 
             pstmt.setInt(1, reaction.getPostId());
             pstmt.setString(2, reaction.getUsername());
-            pstmt.setString(3, reaction.getType());
+            pstmt.setString(3, reaction.getType().toString());
+
 
             pstmt.executeUpdate();
         } catch (SQLException e) {
@@ -36,7 +38,7 @@ public class ReactionDAOImpl implements ReactionDAO {
 
             pstmt.setInt(1, reaction.getPostId());
             pstmt.setString(2, reaction.getUsername());
-            pstmt.setString(3, reaction.getType());
+            pstmt.setString(3, reaction.getType().toString());
 
             pstmt.executeUpdate();
         } catch (SQLException e) {
@@ -59,7 +61,7 @@ public class ReactionDAOImpl implements ReactionDAO {
                     reactions.add(new Reaction(
                             rs.getInt("postId"),
                             rs.getString("username"),
-                            rs.getString("type")));
+                            ReactionType.valueOf(rs.getString("type"))));
                 }
             }
         } catch (SQLException e) {
@@ -83,7 +85,7 @@ public class ReactionDAOImpl implements ReactionDAO {
                     reactions.add(new Reaction(
                             rs.getInt("postId"),
                             username,
-                            rs.getString("type")));
+                            ReactionType.valueOf(rs.getString("type"))));
                 }
             }
         } catch (SQLException e) {

@@ -1,13 +1,15 @@
 package com.yplatform.models;
 
+import com.yplatform.models.enums.ReactionType;
+
 public class Reaction {
     private int postId; // Foreign Key
     private String username; // Foreign Key
-    private String type;
+    private ReactionType type;
 
     public Reaction() {}
 
-    public Reaction(int postId, String username, String type) {
+    public Reaction(int postId, String username, ReactionType type) {
         this.postId = postId;
         this.username = username;
         this.type = type;
@@ -29,11 +31,11 @@ public class Reaction {
         this.username = username;
     }
 
-    public String getType() {
+    public ReactionType getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(ReactionType type) {
         this.type = type;
     }
 

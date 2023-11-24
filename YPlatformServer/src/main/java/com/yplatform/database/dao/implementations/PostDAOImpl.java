@@ -103,4 +103,28 @@ public class PostDAOImpl implements PostDAO {
             System.out.println("Error" + e.getMessage());
         }
     }
+
+    @Override
+    public List<Post> getPostsByUser(String username) {
+        List<Post> posts = new ArrayList<>();
+        String sql = "SELECT * FROM Post WHERE username = ?";
+
+        try (Connection connection = SQLiteConnectionManager.getConnection();
+             PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, username);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    posts.add(new Post(
+                            rs.getInt("id"),
+                            rs.getString("content"),
+                            rs.getTimestamp("timestamp"),
+                            username));
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error" + e.getMessage());
+        }
+        return posts;
+    }
 }

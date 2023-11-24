@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import com.yplatform.database.dao.interfaces.UserDAO;
 import com.yplatform.models.User;
 import com.yplatform.utils.LoggingUtil;
+import org.mindrot.jbcrypt.BCrypt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +22,11 @@ public class UserService {
 
     public boolean addUser(User user) {
         try {
-            // Logic will be added here to make sure that the User is not already registered
+            if (userExists(user.getUsername(), user.getEmail())) {
+                LoggingUtil.logInfo(logger, "User already exists with the given username/email");
+                return false;
+            }
+            user.setPassword(hashPassword(user.getPassword()));
             return userDAO.addUser(user);
         } catch (Exception e) {
             LoggingUtil.logError(logger, "Failed to perform operation in addUser()", e);
@@ -37,6 +42,18 @@ public class UserService {
             return Optional.empty();
         }
     }
+    public boolean authenticateUser(String username, String password) {
+        try {
+            Optional<User> user = getUser(username);
+            if (user.isPresent() && BCrypt.checkpw(password, user.get().getPassword())) {
+                return true;
+            }
+            return false;
+        } catch (Exception e) {
+            LoggingUtil.logError(logger, "Failed to authenticate user", e);
+            return false;
+        }
+    }
 
     public List<User> getAllUsers() {
         try {
@@ -49,6 +66,7 @@ public class UserService {
 
     public boolean updateUser(User user) {
         try {
+            user.setPassword(hashPassword(user.getPassword()));
             userDAO.updateUser(user);
             return true;
         } catch (Exception e) {
@@ -65,5 +83,13 @@ public class UserService {
             LoggingUtil.logError(logger, "Failed to perform operation in deleteUser()", e);
             return false;
         }
+    }
+
+    private boolean userExists(String username, String email) {
+        return getAllUsers().stream().anyMatch(u -> u.getUsername().equals(username) || u.getEmail().equals(email));
+    }
+
+    private String hashPassword(String password) {
+        return BCrypt.hashpw(password, BCrypt.gensalt());
     }
 }
