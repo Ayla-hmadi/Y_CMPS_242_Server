@@ -10,6 +10,7 @@ public class DatabaseInitializer {
     public static void initializeDatabaseIfNeeded() {
         if (!isDatabaseInitialized()) {
             initializeDatabase();
+            seedData();
         }
     }
 
@@ -84,6 +85,33 @@ public class DatabaseInitializer {
                     e.printStackTrace();
                 }
             }
+        }
+    }
+
+    private static void seedData() {
+        try (Connection connection = SQLiteConnectionManager.getConnection();
+             Statement statement = connection.createStatement()) {
+
+            // Users
+            statement.execute("INSERT INTO User (username, name, email, password) VALUES ('alice', 'Alice', 'alice@example.com', 'hashed_password1')");
+            statement.execute("INSERT INTO User (username, name, email, password) VALUES ('bob', 'Bob', 'bob@example.com', 'hashed_password2')");
+
+            // Posts
+            statement.execute("INSERT INTO Post (content, username) VALUES ('Alice first post', 'alice')");
+            statement.execute("INSERT INTO Post (content, username) VALUES ('Alice second post', 'alice')");
+            statement.execute("INSERT INTO Post (content, username) VALUES ('Bob first post', 'bob')");
+
+            // Following
+            statement.execute("INSERT INTO Following (followerUsername, followingUsername) VALUES ('alice', 'bob')");
+            statement.execute("INSERT INTO Following (followerUsername, followingUsername) VALUES ('bob', 'alice')");
+
+            // Reactions
+            statement.execute("INSERT INTO Reaction (postId, username, type) VALUES (1, 'bob', 'LIKE')");
+            statement.execute("INSERT INTO Reaction (postId, username, type) VALUES (2, 'bob', 'LOVE')");
+            statement.execute("INSERT INTO Reaction (postId, username, type) VALUES (3, 'alice', 'LIKE')");
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error seeding the database", e);
         }
     }
 
