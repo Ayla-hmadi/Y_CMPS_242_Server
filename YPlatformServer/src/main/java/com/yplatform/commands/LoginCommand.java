@@ -28,5 +28,6 @@ public class LoginCommand implements ICommand<User> {
     public void setPassword(String password) {
         this.password = password;
     }
+
 }
 

@@ -1,5 +1,9 @@
 package com.yplatform.network.clientHandlers;
 
+import com.yplatform.commands.ICommand;
+import com.yplatform.commands.LoginCommand;
+import com.yplatform.commands.QueryMyPostsCommand;
+import com.yplatform.commands.RegisterCommand;
 import com.yplatform.network.NetworkHelper;
 import com.google.gson.Gson;
 import com.google.inject.Guice;
@@ -8,6 +12,7 @@ import com.yplatform.commands.handlers.LoginCommandHandler;
 import com.yplatform.commands.handlers.RegisterCommandHandler;
 import com.yplatform.models.User;
 import com.yplatform.network.ExitException;
+import com.yplatform.services.AuthenticationService;
 import com.yplatform.services.PostService;
 import com.yplatform.utils.ClientDiModule;
 import org.slf4j.Logger;
@@ -18,12 +23,17 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Handler with inline processing of requests
  */
 public class DefaultClientHandler implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(DefaultClientHandler.class);
+
+    private final Map<String, Class<? extends ICommand>> commands = new HashMap<>();
+
 
     private final Socket clientSocket;
     private final Gson gson;
@@ -34,6 +44,10 @@ public class DefaultClientHandler implements Runnable {
     public DefaultClientHandler(Socket clientSocket) {
         this.clientSocket = clientSocket;
         this.gson = new Gson();
+        //
+        commands.put("my posts", QueryMyPostsCommand.class);
+        commands.put("login", LoginCommand.class);
+        commands.put("register", RegisterCommand.class);
     }
 
     @Override
@@ -59,11 +73,11 @@ public class DefaultClientHandler implements Runnable {
             while ((inputLine = NetworkHelper.readLine(reader, logger)) != null) {
                 // loop until login
                 if (currentUser == null) {
-                    if ("login".equals(inputLine)) {
+                    if (CommandNames.Login.equals(inputLine)) {
                         // expected login model
                         var handler = injector.getInstance(LoginCommandHandler.class);
                         currentUser = handler.Handle();
-                    } else if ("register".equals(inputLine)) {
+                    } else if (CommandNames.Register.equals(inputLine)) {
                         // register
                         var handler = injector.getInstance(RegisterCommandHandler.class);
                         currentUser = handler.Handle();
@@ -75,16 +89,50 @@ public class DefaultClientHandler implements Runnable {
                     break;
                 }
             }
-            ///////////////////////////////////////////////////////////////////////////////
+            injector.getInstance(AuthenticationService.class).setCurrentUser(currentUser);
+
+            //////////////////////////////////////////////////
             // THIS STAGE IS REACHED ONLY IF USER IS LOGGED IN
             // THIS STAGE IS REACHED ONLY IF USER IS LOGGED IN
             // THIS STAGE IS REACHED ONLY IF USER IS LOGGED IN
-            ///////////////////////////////////////////////////////////////////////////////
+            //////////////////////////////////////////////////
+
+
+            ////////////////////
+            // WAIT FOR COMMANDS
+            // WAIT FOR COMMANDS
+            // WAIT FOR COMMANDS
+            ////////////////////
             var postsService = injector.getInstance(PostService.class);
-            var userPosts = postsService.getAllPostsByUser(currentUser.getUsername());
-            var json = gson.toJson(userPosts);
-            writer.println(json);
+
             //
+            loop:
+            while ((inputLine = NetworkHelper.readLine(reader, logger)) != null) {
+                switch (inputLine) {
+                    case CommandNames.Exit:
+                        logger.info("Client 'exit' command received. Exiting now...");
+                        break loop;
+                    case CommandNames.AddPost:
+                    {
+                        var content =
+                    }
+                        break;
+                    case CommandNames.MyPosts: {
+                        var response = postsService.getAllPostsByUser(currentUser.getUsername());
+                        writer.println(gson.toJson(response));
+                        break;
+                    }
+                    case CommandNames.MyInterests: {
+                        var response = postsService.getRandomPostsFromNonFollowedUsers(currentUser.getUsername(), 10);
+                        writer.println(gson.toJson(response));
+                        break;
+                    }
+                    default:
+                        // ignore !?
+                        break;
+                }
+
+            }
         } catch (IOException e) {
             logger.warn("read/write error", e);
         } catch (ExitException e) {

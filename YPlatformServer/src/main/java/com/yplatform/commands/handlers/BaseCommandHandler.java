@@ -15,10 +15,11 @@ public abstract class BaseCommandHandler {
     protected final PrintWriter writer;
     protected final BufferedReader reader;
     protected final Logger logger;
+    protected final Gson gson;
 
     public BaseCommandHandler(Injector injector, PrintWriter printWriter, BufferedReader reader, Logger logger) {
         this.injector = injector;
-
+        this.gson = new Gson();
         this.writer = printWriter;
         this.reader = reader;
         this.logger = logger;

@@ -1,5 +1,6 @@
 package com.yplatform.services;
 
+import com.google.inject.Inject;
 import com.yplatform.database.dao.interfaces.ReactionDAO;
 import com.yplatform.models.Reaction;
 import com.yplatform.utils.LoggingUtil;
@@ -13,6 +14,7 @@ public class ReactionService {
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
     private final ReactionDAO reactionDAO;
 
+    @Inject
     public ReactionService(ReactionDAO reactionDAO) {
         this.reactionDAO = reactionDAO;
     }

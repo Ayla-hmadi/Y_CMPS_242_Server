@@ -1,8 +1,13 @@
 package com.yplatform.utils;
 
 import com.google.inject.*;
+import com.yplatform.database.dao.implementations.FollowingDAOImpl;
+import com.yplatform.database.dao.implementations.PostDAOImpl;
 import com.yplatform.database.dao.implementations.UserDAOImpl;
+import com.yplatform.database.dao.interfaces.FollowingDAO;
+import com.yplatform.database.dao.interfaces.PostDAO;
 import com.yplatform.database.dao.interfaces.UserDAO;
+import com.yplatform.services.AuthenticationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,6 +18,10 @@ public class AppDiModule extends AbstractModule {
     @Override
     protected void configure() {
         bind(UserDAO.class).to(UserDAOImpl.class);
+        bind(FollowingDAO.class).to(FollowingDAOImpl.class);
+        bind(PostDAO.class).to(PostDAOImpl.class);
+
+        bind(AuthenticationService.class).asEagerSingleton();
     }
 }
 

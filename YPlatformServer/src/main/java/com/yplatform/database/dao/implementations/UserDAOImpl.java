@@ -52,7 +52,7 @@ public class UserDAOImpl implements UserDAO {
                             rs.getString("username"),
                             rs.getString("name"),
                             rs.getString("email"),
-                            "");
+                            rs.getString("password"));
                     return Optional.of(user);
                 }
             }

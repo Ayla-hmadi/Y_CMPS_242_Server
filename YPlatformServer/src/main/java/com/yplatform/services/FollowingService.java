@@ -1,5 +1,6 @@
 package com.yplatform.services;
 
+import com.google.inject.Inject;
 import com.yplatform.database.dao.interfaces.FollowingDAO;
 import com.yplatform.models.Following;
 import com.yplatform.utils.LoggingUtil;
@@ -13,6 +14,7 @@ public class FollowingService {
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
     private final FollowingDAO followingDAO;
 
+    @Inject
     public FollowingService(FollowingDAO followingDAO) {
         this.followingDAO = followingDAO;
     }

@@ -114,7 +114,7 @@ public class ClientTest {
         // login
         printWriter.println("login");
         // send login dto
-        var loginDto = new LoginCommand("oz", "oz");
+        var loginDto = new LoginCommand("alice", "hashed_password1");
         var gson = new Gson();
         var json = gson.toJson(loginDto);
         printWriter.println(json);

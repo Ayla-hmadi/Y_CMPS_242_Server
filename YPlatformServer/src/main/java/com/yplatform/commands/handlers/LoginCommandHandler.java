@@ -4,9 +4,11 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.yplatform.commands.ICommandHandler;
 import com.yplatform.commands.LoginCommand;
+import com.yplatform.commands.responses.ErrorResponse;
+import com.yplatform.commands.responses.LoginResponse;
 import com.yplatform.models.User;
 import com.yplatform.network.ExitException;
-import com.yplatform.network.Keywords;
+import com.yplatform.services.PostService;
 import com.yplatform.services.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,24 +28,33 @@ public class LoginCommandHandler extends BaseCommandHandler implements ICommandH
 
     @Override
     public User Handle() throws IOException, ExitException {
+        var response = new LoginResponse();
+        User user = null;
         while (true) {
             var login = readJsonObject(LoginCommand.class);
             var userService = injector.getInstance(UserService.class);
 
-            var userResult = userService.getUser(login.getUsername());
-            if (userResult.isEmpty()) {
-                writer.println("Invalid username!");
+            user = userService.authenticateUser(login.getUsername(), login.getPassword());
+            if (user == null) {
+                writer.println(gson.toJson(new ErrorResponse("Invalid username or password!")));
             } else {
-                User user = userResult.get();
-                if (!user.getPassword().equals(login.getPassword())) {
-                    writer.println("Invalid password");
-                } else {
-                    writer.println(Keywords.CommandSuccess);
-                    user.setPassword(null);
-                    return user;
-                }
+                user.setPassword(null);
+                response.setUser(user);
+                break;
             }
         }
+
+        // return posts
+        var postsService = injector.getInstance(PostService.class);
+        response.setPosts(
+                postsService.getAllPostsByUser(user.getUsername())
+        );
+        response.setInterests(
+                postsService.getRandomPostsFromNonFollowedUsers(user.getUsername(), 10)
+        );
+        writer.println(gson.toJson(response));
+
+        return user;
     }
 }
 
