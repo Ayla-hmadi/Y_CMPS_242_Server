@@ -115,6 +115,7 @@ public class DefaultClientHandler implements Runnable {
                     case CommandNames.Exit:
                         logger.info("Client 'exit' command received. Exiting now...");
                         break loop;
+                    // posts
                     case CommandNames.AddPost: {
                         var content = NetworkHelper.readLine(reader, logger);
                         postsService.addPost(content, currentUser.getUsername());
@@ -130,6 +131,23 @@ public class DefaultClientHandler implements Runnable {
                         reactionService.addReaction(reaction);
                         break;
                     }
+                    case CommandNames.MyPosts: {
+                        var response = postsService.getAllPostsByUser(currentUser.getUsername());
+                        writer.println(gson.toJson(response));
+                        break;
+                    }
+                    case CommandNames.MyInterests: {
+                        var response = postsService.getRandomPostsFromNonFollowedUsers(currentUser.getUsername(), 10);
+                        writer.println(gson.toJson(response));
+                        break;
+                    }
+                    case CommandNames.GetFollowedUsersPosts: {
+                        var username = NetworkHelper.readLine(reader, logger);
+                        var list = postsService.getPostsByFollowedUsers(username);
+                        writer.println(gson.toJson(list));
+                        break;
+                    }
+                    // Following
                     case CommandNames.Follow: {
                         var followId = NetworkHelper.readLine(reader, logger);
 
@@ -140,14 +158,25 @@ public class DefaultClientHandler implements Runnable {
                         followService.followUser(follow);
                         break;
                     }
-                    case CommandNames.MyPosts: {
-                        var response = postsService.getAllPostsByUser(currentUser.getUsername());
-                        writer.println(gson.toJson(response));
+                    case CommandNames.Unfollow: {
+                        var followId = NetworkHelper.readLine(reader, logger);
+                        var follow = new Following(
+                                currentUser.getUsername(),
+                                followId
+                        );
+                        followService.unfollowUser(follow);
                         break;
                     }
-                    case CommandNames.MyInterests: {
-                        var response = postsService.getRandomPostsFromNonFollowedUsers(currentUser.getUsername(), 10);
-                        writer.println(gson.toJson(response));
+                    case CommandNames.GetFollowingByUsername: {
+                        var username = NetworkHelper.readLine(reader, logger);
+                        var list = followService.getFollowingByUsername(username);
+                        writer.println(gson.toJson(list));
+                        break;
+                    }
+                    case CommandNames.GetFollowersByUsername: {
+                        var username = NetworkHelper.readLine(reader, logger);
+                        var list = followService.getFollowersByUsername(username);
+                        writer.println(gson.toJson(list));
                         break;
                     }
                     default:
