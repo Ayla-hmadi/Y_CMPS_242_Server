@@ -1,5 +1,6 @@
 package com.yplatform.services;
 
+import com.google.gson.Gson;
 import com.google.inject.Inject;
 import com.yplatform.database.dao.interfaces.FollowingDAO;
 import com.yplatform.database.dao.interfaces.PostDAO;
@@ -55,17 +56,18 @@ public class PostService {
         if (followerSocket != null) {
             try {
                 PrintWriter out = new PrintWriter(followerSocket.getOutputStream(), true);
-                String notificationMessage = createNotificationMessage(post);
-                out.println(notificationMessage);
+                var gson = new Gson();
+                String json = gson.toJson(post);
+                out.println("event:" + json);
             } catch (IOException e) {
                 System.err.println("Error sending notification to " + followerUsername);
             }
         }
     }
-
-    private String createNotificationMessage(Post post) {
-        return "New post from " + post.getUsername() + ": " + post.getContent();
-    }
+//
+//    private String createNotificationMessage(Post post) {
+//        return "New post from " + post.getUsername() + ": " + post.getContent();
+//    }
 
     public Optional<Post> getPost(int id) {
         try {
