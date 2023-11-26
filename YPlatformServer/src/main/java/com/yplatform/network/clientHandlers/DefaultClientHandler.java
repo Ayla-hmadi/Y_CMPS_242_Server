@@ -1,9 +1,8 @@
 package com.yplatform.network.clientHandlers;
 
-import com.yplatform.commands.ICommand;
-import com.yplatform.commands.LoginCommand;
-import com.yplatform.commands.QueryMyPostsCommand;
-import com.yplatform.commands.RegisterCommand;
+import com.yplatform.commands.*;
+import com.yplatform.models.Following;
+import com.yplatform.models.Reaction;
 import com.yplatform.network.NetworkHelper;
 import com.google.gson.Gson;
 import com.google.inject.Guice;
@@ -13,7 +12,9 @@ import com.yplatform.commands.handlers.RegisterCommandHandler;
 import com.yplatform.models.User;
 import com.yplatform.network.ExitException;
 import com.yplatform.services.AuthenticationService;
+import com.yplatform.services.FollowingService;
 import com.yplatform.services.PostService;
+import com.yplatform.services.ReactionService;
 import com.yplatform.utils.ClientDiModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -104,6 +105,8 @@ public class DefaultClientHandler implements Runnable {
             // WAIT FOR COMMANDS
             ////////////////////
             var postsService = injector.getInstance(PostService.class);
+            var reactionService = injector.getInstance(ReactionService.class);
+            var followService = injector.getInstance(FollowingService.class);
 
             //
             loop:
@@ -112,11 +115,31 @@ public class DefaultClientHandler implements Runnable {
                     case CommandNames.Exit:
                         logger.info("Client 'exit' command received. Exiting now...");
                         break loop;
-                    case CommandNames.AddPost:
-                    {
-                        var content =
-                    }
+                    case CommandNames.AddPost: {
+                        var content = NetworkHelper.readLine(reader, logger);
+                        postsService.addPost(content, currentUser.getUsername());
                         break;
+                    }
+                    case CommandNames.React: {
+                        inputLine = NetworkHelper.readLine(reader, logger);
+                        var command = gson.fromJson(inputLine, AddReactionCommand.class);
+                        var reaction = new Reaction(
+                                command.getPostId(),
+                                currentUser.getUsername(),
+                                command.getReactionType());
+                        reactionService.addReaction(reaction);
+                        break;
+                    }
+                    case CommandNames.Follow: {
+                        var followId = NetworkHelper.readLine(reader, logger);
+
+                        var follow = new Following(
+                                currentUser.getUsername(),
+                                followId
+                        );
+                        followService.followUser(follow);
+                        break;
+                    }
                     case CommandNames.MyPosts: {
                         var response = postsService.getAllPostsByUser(currentUser.getUsername());
                         writer.println(gson.toJson(response));

@@ -1,9 +1,10 @@
 package com.yplatform.commands;
 
+import com.yplatform.models.Reaction;
 import com.yplatform.models.User;
 
 public class RegisterCommand implements ICommand<User> {
-    private String username, name, email, password, address;
+    String username, name, email, password, address;
 
     public String getUsername() {
         return username;

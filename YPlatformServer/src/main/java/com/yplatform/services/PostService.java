@@ -9,6 +9,8 @@ import com.yplatform.utils.LoggingUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -21,7 +23,7 @@ public class PostService {
     private final FollowingDAO followingDAO;
 
     @Inject
-    public PostService(PostDAO postDAO, FollowingService followingService,FollowingDAO followingDAO) {
+    public PostService(PostDAO postDAO, FollowingService followingService, FollowingDAO followingDAO) {
         this.postDAO = postDAO;
         this.followingService = followingService;
         this.followingDAO = followingDAO;
@@ -109,6 +111,18 @@ public class PostService {
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
             return List.of();
+        }
+    }
+
+    public Post addPost(String content, String username) {
+        var post = new Post();
+        post.setContent(content);
+        post.setUsername(username);
+        post.setTimestamp(new Date());
+        if (addPost(post)) {
+            return post;
+        } else {
+            return null;
         }
     }
 }
