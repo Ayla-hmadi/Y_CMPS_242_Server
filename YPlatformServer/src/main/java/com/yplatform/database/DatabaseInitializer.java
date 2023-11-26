@@ -1,5 +1,7 @@
 package com.yplatform.database;
 
+import org.mindrot.jbcrypt.BCrypt;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -93,7 +95,10 @@ public class DatabaseInitializer {
              Statement statement = connection.createStatement()) {
 
             // Users
-            statement.execute("INSERT INTO User (username, name, email, password) VALUES ('alice', 'Alice', 'alice@example.com', 'hashed_password1')");
+            String hashedPassword = BCrypt.hashpw("hashed_password1", BCrypt.gensalt());
+            statement.execute("INSERT INTO User (username, name, email, password) VALUES ('alice', 'Alice', 'alice@example.com', '" + hashedPassword + "')");
+
+            String hashedPassword2 = BCrypt.hashpw("hashed_password2", BCrypt.gensalt());
             statement.execute("INSERT INTO User (username, name, email, password) VALUES ('bob', 'Bob', 'bob@example.com', 'hashed_password2')");
 
             // Posts
