@@ -57,8 +57,8 @@ public class UserServiceTest {
 
     @Test
     public void authenticateUser_InvalidPassword_ReturnsNull() {
-        String username = "testUser";
-        String rawPassword = "password123";
+        String username = "alice";
+        String rawPassword = "hashed_password1";
         String wrongPassword = "wrongPassword";
         String hashedPassword = BCrypt.hashpw(rawPassword, BCrypt.gensalt());
 
