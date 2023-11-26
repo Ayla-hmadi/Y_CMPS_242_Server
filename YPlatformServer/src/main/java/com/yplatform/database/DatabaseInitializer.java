@@ -44,9 +44,6 @@ public class DatabaseInitializer {
                     "password TEXT NOT NULL" +
                     ");");
 
-            statement.execute("INSERT INTO `User` (username, name, email, password) " +
-                    "VALUES ('oz', 'oz', 'oz', 'oz')");
-
             // Post Table
             statement.execute("CREATE TABLE IF NOT EXISTS Post (" +
                     "id INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -99,7 +96,10 @@ public class DatabaseInitializer {
             statement.execute("INSERT INTO User (username, name, email, password) VALUES ('alice', 'Alice', 'alice@example.com', '" + hashedPassword + "')");
 
             String hashedPassword2 = BCrypt.hashpw("hashed_password2", BCrypt.gensalt());
-            statement.execute("INSERT INTO User (username, name, email, password) VALUES ('bob', 'Bob', 'bob@example.com', 'hashed_password2')");
+            statement.execute("INSERT INTO User (username, name, email, password) VALUES ('bob', 'Bob', 'bob@example.com', '" + hashedPassword2 + "')");
+
+            statement.execute("INSERT INTO `User` (username, name, email, password) " +
+                    "VALUES ('oz', 'oz', 'oz', 'oz')");
 
             // Posts
             statement.execute("INSERT INTO Post (content, username) VALUES ('Alice first post', 'alice')");
