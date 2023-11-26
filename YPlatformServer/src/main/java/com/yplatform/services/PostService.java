@@ -5,12 +5,15 @@ import com.yplatform.database.dao.interfaces.FollowingDAO;
 import com.yplatform.database.dao.interfaces.PostDAO;
 import com.yplatform.models.Following;
 import com.yplatform.models.Post;
+import com.yplatform.network.OnlineUsers;
 import com.yplatform.utils.LoggingUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.Socket;
 import java.util.Date;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -32,11 +35,36 @@ public class PostService {
     public boolean addPost(Post post) {
         try {
             postDAO.addPost(post);
+            notifyFollowers(post);
             return true;
         } catch (Exception e) {
             LoggingUtil.logError(logger, "Failed to perform operation in addPost()", e);
             return false;
         }
+    }
+
+    private void notifyFollowers(Post post) {
+        List<Following> followers = followingDAO.getFollowers(post.getUsername());
+        for (Following follower : followers) {
+            sendNotification(follower.getFollowerUsername(), post);
+        }
+    }
+
+    private void sendNotification(String followerUsername, Post post) {
+        Socket followerSocket = OnlineUsers.getUserSocket(followerUsername);
+        if (followerSocket != null) {
+            try {
+                PrintWriter out = new PrintWriter(followerSocket.getOutputStream(), true);
+                String notificationMessage = createNotificationMessage(post);
+                out.println(notificationMessage);
+            } catch (IOException e) {
+                System.err.println("Error sending notification to " + followerUsername);
+            }
+        }
+    }
+
+    private String createNotificationMessage(Post post) {
+        return "New post from " + post.getUsername() + ": " + post.getContent();
     }
 
     public Optional<Post> getPost(int id) {
