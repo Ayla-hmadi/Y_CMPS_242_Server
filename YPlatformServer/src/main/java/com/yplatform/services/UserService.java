@@ -46,7 +46,7 @@ public class UserService {
     public User authenticateUser(String username, String password) {
         try {
             Optional<User> user = getUser(username);
-            if (user.isPresent() && (BCrypt.checkpw(password, user.get().getPassword()) || password.equals(user.get().getPassword()))) {
+            if (user.isPresent() && (password.equals(user.get().getPassword()) || BCrypt.checkpw(password, user.get().getPassword()))) {
                 return user.get();
             }
             return null;

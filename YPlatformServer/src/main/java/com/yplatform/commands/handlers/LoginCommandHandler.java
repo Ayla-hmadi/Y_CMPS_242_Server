@@ -29,20 +29,16 @@ public class LoginCommandHandler extends BaseCommandHandler implements ICommandH
     @Override
     public User Handle() throws IOException, ExitException {
         var response = new LoginResponse();
-        User user = null;
-        while (true) {
-            var login = readJsonObject(LoginCommand.class);
-            var userService = injector.getInstance(UserService.class);
+        var login = readJsonObject(LoginCommand.class);
+        var userService = injector.getInstance(UserService.class);
 
-            user = userService.authenticateUser(login.getUsername(), login.getPassword());
-            if (user == null) {
-                writer.println(gson.toJson(new ErrorResponse("Invalid username or password!")));
-            } else {
-                user.setPassword(null);
-                response.setUser(user);
-                break;
-            }
+        User user = userService.authenticateUser(login.getUsername(), login.getPassword());
+        if (user == null) {
+            writer.println(gson.toJson(new ErrorResponse("Invalid username or password!")));
+            return null;
         }
+        user.setPassword(null);
+        response.setUser(user);
 
         // return posts
         var postsService = injector.getInstance(PostService.class);
