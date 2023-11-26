@@ -11,6 +11,7 @@ import com.yplatform.commands.handlers.LoginCommandHandler;
 import com.yplatform.commands.handlers.RegisterCommandHandler;
 import com.yplatform.models.User;
 import com.yplatform.network.ExitException;
+import com.yplatform.network.OnlineUsers;
 import com.yplatform.services.AuthenticationService;
 import com.yplatform.services.FollowingService;
 import com.yplatform.services.PostService;
@@ -78,6 +79,9 @@ public class DefaultClientHandler implements Runnable {
                         // expected login model
                         var handler = injector.getInstance(LoginCommandHandler.class);
                         currentUser = handler.Handle();
+                        if (currentUser != null) {
+                            OnlineUsers.addUser(currentUser.getUsername(), clientSocket);
+                        }
                     } else if (CommandNames.Register.equals(inputLine)) {
                         // register
                         var handler = injector.getInstance(RegisterCommandHandler.class);
@@ -190,6 +194,10 @@ public class DefaultClientHandler implements Runnable {
         } catch (ExitException e) {
             logger.info("Client request to end connection through 'exit' command");
         } finally {
+            if (currentUser != null) {
+                OnlineUsers.removeUser(currentUser.getUsername());
+            }
+
             try {
                 clientSocket.close();
                 System.out.println("Client socket closed");
