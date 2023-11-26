@@ -3,6 +3,7 @@ package com.yplatform.commands.handlers;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.inject.Injector;
+import com.yplatform.commands.responses.ErrorResponse;
 import com.yplatform.network.ExitException;
 import org.slf4j.Logger;
 
@@ -38,7 +39,9 @@ public abstract class BaseCommandHandler {
                 return json;
             } catch (JsonSyntaxException exception) {
                 logger.error("Invalid json object", exception);
-                writer.println("Invalid json input. Please try again");
+                writer.println(
+                        new ErrorResponse("Invalid json input. Please try again")
+                );
             }
         }
     }
