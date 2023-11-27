@@ -74,22 +74,21 @@ public class DefaultClientHandler implements Runnable {
 
             while ((inputLine = NetworkHelper.readLine(reader, logger)) != null) {
                 // loop until login
-                if (currentUser == null) {
-                    if (CommandNames.Login.equals(inputLine)) {
-                        // expected login model
-                        var handler = injector.getInstance(LoginCommandHandler.class);
-                        currentUser = handler.Handle();
-                        if (currentUser != null) {
-                            OnlineUsers.addUser(currentUser.getUsername(), clientSocket);
-                        }
-                    } else if (CommandNames.Register.equals(inputLine)) {
-                        // register
-                        var handler = injector.getInstance(RegisterCommandHandler.class);
-                        currentUser = handler.Handle();
-                    } else {
-                        writer.println("login or register");
+                if (CommandNames.Login.equals(inputLine)) {
+                    // expected login model
+                    var handler = injector.getInstance(LoginCommandHandler.class);
+                    currentUser = handler.Handle();
+                    if (currentUser != null) {
+                        OnlineUsers.addUser(currentUser.getUsername(), clientSocket);
                     }
+                } else if (CommandNames.Register.equals(inputLine)) {
+                    // register
+                    var handler = injector.getInstance(RegisterCommandHandler.class);
+                    currentUser = handler.Handle();
                 } else {
+                    writer.println("login or register");
+                }
+                if (currentUser != null) {
                     logger.info("User logged in: " + currentUser.getUsername());
                     break;
                 }
@@ -122,7 +121,8 @@ public class DefaultClientHandler implements Runnable {
                     // posts
                     case CommandNames.AddPost: {
                         var content = NetworkHelper.readLine(reader, logger);
-                        postsService.addPost(content, currentUser.getUsername());
+                        var post = postsService.addPost(content, currentUser.getUsername());
+                        writer.println(gson.toJson(post));
                         break;
                     }
                     case CommandNames.React: {
