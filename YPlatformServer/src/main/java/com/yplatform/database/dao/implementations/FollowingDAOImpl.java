@@ -3,6 +3,7 @@ package com.yplatform.database.dao.implementations;
 import com.yplatform.database.dao.interfaces.FollowingDAO;
 import com.yplatform.database.SQLiteConnectionManager;
 import com.yplatform.models.Following;
+import com.yplatform.models.User;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -21,6 +22,7 @@ public class FollowingDAOImpl implements FollowingDAO {
             pstmt.setString(2, following.getFollowingUsername());
 
             pstmt.executeUpdate();
+
         } catch (SQLException e) {
             System.out.println("Error" + e.getMessage());
         }
@@ -82,4 +84,29 @@ public class FollowingDAOImpl implements FollowingDAO {
         return followings;
     }
 
+    @Override
+    public List<User> getRandomUsersToFollow(String currentUsername, int limit) {
+        List<User> randomUsers = new ArrayList<>();
+        String sql = "SELECT * FROM User WHERE username <> ? ORDER BY RANDOM() LIMIT ?";
+
+        try (Connection connection = SQLiteConnectionManager.getConnection();
+             PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, currentUsername);
+            pstmt.setInt(2, limit);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    randomUsers.add(new User(
+                            rs.getString("username"),
+                            rs.getString("name"),
+                            rs.getString("email"),
+                            null
+                    ));
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error" + e.getMessage());
+        }
+        return randomUsers;
+    }
 }

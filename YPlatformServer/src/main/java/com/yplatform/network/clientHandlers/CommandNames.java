@@ -17,4 +17,5 @@ public class CommandNames {
     public static final String Unfollow = "unfollow";
     public static final String GetFollowingByUsername = "getFollowingByUsername";
     public static final String GetFollowersByUsername = "getFollowersByUsername";
+    public static final String GetRandomUsersToFollow = "GetRandomUsersToFollow";
 }

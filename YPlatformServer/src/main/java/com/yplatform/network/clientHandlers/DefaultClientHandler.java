@@ -111,6 +111,7 @@ public class DefaultClientHandler implements Runnable {
             var reactionService = injector.getInstance(ReactionService.class);
             var followService = injector.getInstance(FollowingService.class);
 
+
             //
             loop:
             while ((inputLine = NetworkHelper.readLine(reader, logger)) != null) {
@@ -159,7 +160,9 @@ public class DefaultClientHandler implements Runnable {
                                 currentUser.getUsername(),
                                 followId
                         );
-                        followService.followUser(follow);
+                        if(followService.followUser(follow)){
+                            writer.println(currentUser.getUsername()+ " is now following "+followId);
+                        } else writer.println(currentUser.getUsername()+ " is already following "+followId);
                         break;
                     }
                     case CommandNames.Unfollow: {
@@ -168,7 +171,9 @@ public class DefaultClientHandler implements Runnable {
                                 currentUser.getUsername(),
                                 followId
                         );
-                        followService.unfollowUser(follow);
+                        if(followService.unfollowUser(follow)){
+                            writer.println(currentUser.getUsername()+ " stopped following "+followId);
+                        } else writer.println(currentUser.getUsername()+ " is already not following "+followId);
                         break;
                     }
                     case CommandNames.GetFollowingByUsername: {
@@ -181,6 +186,12 @@ public class DefaultClientHandler implements Runnable {
                         var username = NetworkHelper.readLine(reader, logger);
                         var list = followService.getFollowersByUsername(username);
                         writer.println(gson.toJson(list));
+                        break;
+                    }
+                    case CommandNames.GetRandomUsersToFollow: {
+                        int limit = 10;
+                        var randomUsers = followService.getRandomUsersToFollow(currentUser.getUsername(), limit);
+                        writer.println(gson.toJson(randomUsers));
                         break;
                     }
                     default:
