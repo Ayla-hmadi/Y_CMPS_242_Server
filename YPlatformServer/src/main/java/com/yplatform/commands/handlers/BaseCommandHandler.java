@@ -35,7 +35,7 @@ public abstract class BaseCommandHandler {
             try {
                 Gson gson = new Gson();
                 var json = gson.fromJson(inputLine, classOfT);
-                logger.info("Received json object");
+                logger.info("Received json object: " + inputLine);
                 return json;
             } catch (JsonSyntaxException exception) {
                 logger.error("Invalid json object", exception);
