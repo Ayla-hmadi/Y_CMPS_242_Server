@@ -132,8 +132,8 @@ public class DefaultClientHandler implements Runnable {
                         var reaction = new Reaction(
                                 command.getPostId(),
                                 currentUser.getUsername(),
-                                command.getReactionType());
-                        reactionService.addReaction(reaction);
+                                command.getReaction());
+                        reactionService.handleReaction(reaction);
                         break;
                     }
                     case CommandNames.MyPosts: {

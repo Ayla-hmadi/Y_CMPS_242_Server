@@ -9,4 +9,7 @@ public interface ReactionDAO {
     void removeReaction(Reaction reaction);
     List<Reaction> getReactionsByPost(int postId);
     List<Reaction> getReactionsByUser(String username);
+    List<Reaction> getReactionsByUserAndPost(String username, int postId);
+
+    boolean updateReaction(Reaction reaction);
 }

@@ -19,6 +19,38 @@ public class ReactionService {
         this.reactionDAO = reactionDAO;
     }
 
+    public boolean handleReaction(Reaction reaction) {
+        try {
+            List<Reaction> existingReactions = reactionDAO.getReactionsByUserAndPost(reaction.getUsername(), reaction.getPostId());
+            if (!existingReactions.isEmpty()) {
+                return updateOrRemoveReaction(existingReactions.get(0), reaction);
+            } else {
+                return addReaction(reaction);
+            }
+        } catch (Exception e) {
+            LoggingUtil.logError(logger, "Failed to handle reaction", e);
+            return false;
+        }
+    }
+
+    private boolean updateOrRemoveReaction(Reaction existingReaction, Reaction newReaction) {
+        if (existingReaction.getType().equals(newReaction.getType())) {
+            return removeReaction(existingReaction);
+        } else {
+            return updateReaction(newReaction);
+        }
+    }
+
+    private boolean updateReaction(Reaction reaction) {
+        try {
+            reactionDAO.updateReaction(reaction);
+            return true;
+        } catch (Exception e) {
+            LoggingUtil.logError(logger, "Failed to perform operation in addReaction()", e);
+            return false;
+        }
+    }
+
     public boolean addReaction(Reaction reaction) {
         try {
             reactionDAO.addReaction(reaction);

@@ -15,11 +15,11 @@ public class AddReactionCommand {
         this.postId = postId;
     }
 
-    public ReactionType getReactionType() {
+    public ReactionType getReaction() {
         return reaction;
     }
 
-    public void setReactionType(ReactionType reaction) {
+    public void setReaction(ReactionType reaction) {
         this.reaction = reaction;
     }
 }
