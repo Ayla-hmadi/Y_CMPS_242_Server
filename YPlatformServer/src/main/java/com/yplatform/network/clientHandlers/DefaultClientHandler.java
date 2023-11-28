@@ -1,6 +1,7 @@
 package com.yplatform.network.clientHandlers;
 
 import com.yplatform.commands.*;
+import com.yplatform.commands.responses.UserProfileResponse;
 import com.yplatform.models.Following;
 import com.yplatform.models.Reaction;
 import com.yplatform.network.NetworkHelper;
@@ -12,10 +13,7 @@ import com.yplatform.commands.handlers.RegisterCommandHandler;
 import com.yplatform.models.User;
 import com.yplatform.network.ExitException;
 import com.yplatform.network.OnlineUsers;
-import com.yplatform.services.AuthenticationService;
-import com.yplatform.services.FollowingService;
-import com.yplatform.services.PostService;
-import com.yplatform.services.ReactionService;
+import com.yplatform.services.*;
 import com.yplatform.utils.ClientDiModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -110,6 +108,7 @@ public class DefaultClientHandler implements Runnable {
             var postsService = injector.getInstance(PostService.class);
             var reactionService = injector.getInstance(ReactionService.class);
             var followService = injector.getInstance(FollowingService.class);
+            var userService = injector.getInstance(UserService.class);
 
 
             //
@@ -192,6 +191,15 @@ public class DefaultClientHandler implements Runnable {
                         int limit = 10;
                         var randomUsers = followService.getRandomUsersToFollow(currentUser.getUsername(), limit);
                         writer.println(gson.toJson(randomUsers));
+                        break;
+                    }
+                    //User
+                    case CommandNames.GetUserInfoForUserProfile: {
+                        String requestedUsername = NetworkHelper.readLine(reader, logger);
+                        UserProfileResponse userProfileInfo = userService.getUserProfileInfo(requestedUsername);
+                        Gson gson = new Gson();
+                        String jsonResponse = gson.toJson(userProfileInfo);
+                        writer.println(jsonResponse);
                         break;
                     }
                     default:

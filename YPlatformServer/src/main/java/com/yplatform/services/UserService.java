@@ -1,6 +1,7 @@
 package com.yplatform.services;
 
 import com.google.inject.Inject;
+import com.yplatform.commands.responses.UserProfileResponse;
 import com.yplatform.database.dao.interfaces.UserDAO;
 import com.yplatform.models.User;
 import com.yplatform.utils.LoggingUtil;
@@ -14,10 +15,14 @@ import java.util.Optional;
 public class UserService {
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
     private final UserDAO userDAO;
+    private final PostService postService;
+    private final FollowingService followingService;
 
     @Inject
-    public UserService(UserDAO userDAO) {
+    public UserService(UserDAO userDAO, PostService postService, FollowingService followingService) {
         this.userDAO = userDAO;
+        this.postService = postService;
+        this.followingService = followingService;
     }
 
     public boolean addUser(User user) {
@@ -92,5 +97,23 @@ public class UserService {
 
     private String hashPassword(String password) {
         return BCrypt.hashpw(password, BCrypt.gensalt());
+    }
+
+    public UserProfileResponse getUserProfileInfo(String username) {
+        UserProfileResponse response = new UserProfileResponse();
+        try {
+            Optional<User> userOpt = userDAO.getUser(username);
+            if (userOpt.isPresent()) {
+                User user = userOpt.get();
+                response.setUsername(user.getUsername());
+                response.setName(user.getName());
+                response.setPosts(postService.getAllPostsByUser(username));
+                response.setNumberOfFollowers(followingService.getFollowersByUsername(username).size());
+                response.setNumberOfFollowing(followingService.getFollowingByUsername(username).size());
+            }
+        } catch (Exception e) {
+            LoggingUtil.logError(logger, "Failed to get user profile info", e);
+        }
+        return response;
     }
 }

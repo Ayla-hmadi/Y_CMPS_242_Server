@@ -18,4 +18,7 @@ public class CommandNames {
     public static final String GetFollowingByUsername = "getFollowingByUsername";
     public static final String GetFollowersByUsername = "getFollowersByUsername";
     public static final String GetRandomUsersToFollow = "GetRandomUsersToFollow";
+
+    //User
+    public static final String GetUserInfoForUserProfile = "GetUserInfoForUserProfile";
 }
